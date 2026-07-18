@@ -7,6 +7,10 @@
     <string name="subhead">A dot for every day of the year. As days pass, the grid fills in.</string>
     <string name="set_wallpaper">Set as live wallpaper</string>
     <string name="accent_label">Accent color</string>
+    <string name="size_label">Size</string>
+    <string name="position_label">Vertical position</string>
+    <string name="mode_lock">Lock screen</string>
+    <string name="mode_home">Home screen</string>
     <string name="stat_days_left">%1$d days left</string>
     <string name="stat_percent">%1$d%% of %2$d done</string>
 </resources>

@@ -60,6 +60,23 @@ The current month's name is highlighted, and a footer shows the days left and
 percent of the year completed. The top of the screen is left clear for the
 lock-screen clock.
 
+### Fitting it to your screen
+
+Lock-screen clocks and home-screen icons sit in different places on every OEM,
+so the app lets you dial the grid in:
+
+- **Size** and **Vertical position** sliders scale and move the grid so it
+  clears your clock / notifications / icons.
+- A **Lock / Home** toggle overlays a mock of the system UI (clock or icons +
+  dock) on the live preview, so you can see exactly what you're avoiding while
+  you adjust.
+- A full **HSV colour picker** sets the accent used for "today" and the footer.
+
+> ℹ️ The mock lock/home overlay is a *representative approximation*, not a pixel
+> replica of your specific device — Android doesn't expose the exact clock
+> geometry to wallpapers. Use it to get close, then confirm on the real lock
+> screen after applying.
+
 ---
 
 ## 💡 Why Remainder?
@@ -76,13 +93,7 @@ Watching the dots slowly fill throughout the year provides a unique perspective 
 
 - Multiple dot themes
 - Custom color palettes
-- Progress percentage
-- Goal tracking
-- Countdown to important dates
-- Widgets
 - AMOLED mode
-- Annual statistics
-- Year history and archives
 
 ---
 
@@ -106,9 +117,10 @@ Remainder/
 │       ├── java/com/remainder/
 │       │   ├── YearRenderer.kt          # draws month names + day-dot grid (shared)
 │       │   ├── YearWallpaperService.kt  # the live wallpaper, redraws at midnight
-│       │   ├── YearPreviewView.kt        # in-app preview using the same renderer
-│       │   ├── MainActivity.kt           # preview + accent picker + "set wallpaper"
-│       │   └── WallpaperConfig.kt         # persisted look (accent color, etc.)
+│       │   ├── YearPreviewView.kt        # in-app preview + mock lock/home overlay
+│       │   ├── ColorPickerView.kt         # HSV accent colour picker
+│       │   ├── MainActivity.kt           # preview + size/position/colour controls
+│       │   └── WallpaperConfig.kt         # persisted look (accent, scale, position)
 │       └── res/                          # layout, colors, theme, launcher icon
 ├── build.gradle.kts
 ├── settings.gradle.kts

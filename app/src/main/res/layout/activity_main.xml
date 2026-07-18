@@ -30,14 +30,39 @@
             android:textColor="@color/text_secondary"
             android:textSize="15sp" />
 
+        <!-- Lock / Home preview toggle -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/modeToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modeLock"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_lock" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modeHome"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_home" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
         <!-- Live preview, phone-ish aspect ratio -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_weight="1"
             android:background="@color/surface"
-            android:minHeight="420dp">
+            android:minHeight="440dp">
 
             <com.remainder.YearPreviewView
                 android:id="@+id/preview"
@@ -54,22 +79,80 @@
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
+        <!-- Size slider -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/accent_label"
+            android:text="@string/size_label"
+            android:textAllCaps="true"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
-            android:textAllCaps="true"
             android:letterSpacing="0.08" />
 
-        <LinearLayout
-            android:id="@+id/swatches"
+        <SeekBar
+            android:id="@+id/sizeSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:max="100" />
+
+        <!-- Vertical position slider -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:orientation="horizontal" />
+            android:text="@string/position_label"
+            android:textAllCaps="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:letterSpacing="0.08" />
+
+        <SeekBar
+            android:id="@+id/posSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:max="100" />
+
+        <!-- Accent color -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/accent_label"
+                android:textAllCaps="true"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:letterSpacing="0.08" />
+
+            <View
+                android:id="@+id/colorPreview"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/colorHex"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <com.remainder.ColorPickerView
+            android:id="@+id/colorPicker"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/setWallpaper"

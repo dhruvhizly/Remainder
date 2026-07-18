@@ -3,30 +3,21 @@ package com.remainder
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var preview: YearPreviewView
     private lateinit var stat: TextView
-
-    private val accents = listOf(
-        "#FF7A18", // orange (default)
-        "#26C6A6", // teal
-        "#4C8DFF", // blue
-        "#FF5C8A", // pink
-        "#B7F03C"  // lime
-    ).map { Color.parseColor(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +27,86 @@ class MainActivity : AppCompatActivity() {
         stat = findViewById(R.id.stat)
 
         preview.config = WallpaperConfig.load(this)
-        buildSwatches()
+        setupColorPicker()
+        setupModeToggle()
+        setupSliders()
         updateStat()
 
         findViewById<MaterialButton>(R.id.setWallpaper).setOnClickListener {
             openWallpaperPicker()
         }
+    }
+
+    private fun setupColorPicker() {
+        val picker = findViewById<ColorPickerView>(R.id.colorPicker)
+        picker.setColor(preview.config.accent)
+        updateColorReadout(preview.config.accent)
+        picker.onColorChanged = { color ->
+            preview.config = preview.config.copy(accent = color)
+            WallpaperConfig.saveAccent(this, color)
+            updateColorReadout(color)
+        }
+    }
+
+    private fun updateColorReadout(color: Int) {
+        findViewById<View>(R.id.colorPreview).background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(color)
+        }
+        findViewById<TextView>(R.id.colorHex).text =
+            String.format("#%06X", 0xFFFFFF and color)
+    }
+
+    private fun setupModeToggle() {
+        val toggle = findViewById<MaterialButtonToggleGroup>(R.id.modeToggle)
+        toggle.check(R.id.modeLock)
+        preview.mode = YearPreviewView.Mode.LOCK
+        toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            preview.mode = when (checkedId) {
+                R.id.modeHome -> YearPreviewView.Mode.HOME
+                else -> YearPreviewView.Mode.LOCK
+            }
+        }
+    }
+
+    private fun setupSliders() {
+        val cfg = preview.config
+        val sizeSeek = findViewById<SeekBar>(R.id.sizeSeek)
+        val posSeek = findViewById<SeekBar>(R.id.posSeek)
+
+        sizeSeek.progress = toProgress(cfg.scale, WallpaperConfig.SCALE_MIN, WallpaperConfig.SCALE_MAX)
+        posSeek.progress = toProgress(cfg.verticalBias, WallpaperConfig.BIAS_MIN, WallpaperConfig.BIAS_MAX)
+
+        sizeSeek.setOnSeekBarChangeListener(object : SimpleSeekListener() {
+            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                val scale = fromProgress(p, WallpaperConfig.SCALE_MIN, WallpaperConfig.SCALE_MAX)
+                preview.config = preview.config.copy(scale = scale)
+                WallpaperConfig.saveScale(this@MainActivity, scale)
+            }
+        })
+
+        posSeek.setOnSeekBarChangeListener(object : SimpleSeekListener() {
+            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                val bias = fromProgress(p, WallpaperConfig.BIAS_MIN, WallpaperConfig.BIAS_MAX)
+                preview.config = preview.config.copy(verticalBias = bias)
+                WallpaperConfig.saveVerticalBias(this@MainActivity, bias)
+            }
+        })
+    }
+
+    private fun toProgress(value: Float, min: Float, max: Float): Int =
+        Math.round((value - min) / (max - min) * 100f).coerceIn(0, 100)
+
+    private fun fromProgress(progress: Int, min: Float, max: Float): Float =
+        min + (progress / 100f) * (max - min)
+
+    /** SeekBar listener that only cares about progress changes. */
+    private abstract class SimpleSeekListener : SeekBar.OnSeekBarChangeListener {
+        override fun onStartTrackingTouch(sb: SeekBar) {}
+        override fun onStopTrackingTouch(sb: SeekBar) {}
     }
 
     override fun onResume() {
@@ -50,36 +115,6 @@ class MainActivity : AppCompatActivity() {
         preview.config = WallpaperConfig.load(this)
         preview.invalidate()
         updateStat()
-    }
-
-    private fun buildSwatches() {
-        val container = findViewById<LinearLayout>(R.id.swatches)
-        container.removeAllViews()
-        val size = dp(44)
-        val margin = dp(6)
-        val selected = preview.config.accent
-
-        accents.forEach { color ->
-            val swatch = View(this)
-            val lp = LinearLayout.LayoutParams(size, size)
-            lp.marginEnd = margin
-            swatch.layoutParams = lp
-            swatch.background = ringDrawable(color, isSelected = color == selected)
-            swatch.setOnClickListener {
-                WallpaperConfig.saveAccent(this, color)
-                preview.config = WallpaperConfig.load(this)
-                buildSwatches()
-            }
-            container.addView(swatch)
-        }
-    }
-
-    private fun ringDrawable(color: Int, isSelected: Boolean): GradientDrawable {
-        return GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(color)
-            if (isSelected) setStroke(dp(3), Color.WHITE)
-        }
     }
 
     private fun updateStat() {
@@ -115,7 +150,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
 }

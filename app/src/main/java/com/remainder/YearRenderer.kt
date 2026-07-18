@@ -66,13 +66,17 @@ class YearRenderer {
         val padX = width * 0.09f
         val availW = width - 2 * padX
 
-        // One pitch that satisfies both the width and the height budget.
-        val pitch = minOf(availW / unitsX, bandH / (unitsY + 3.2f /* footer */))
+        // One pitch that satisfies both the width and the height budget, then
+        // apply the user's size scale (clamped so it never overflows the width).
+        val basePitch = minOf(availW / unitsX, bandH / (unitsY + 3.2f /* footer */))
+        val maxPitch = (width * 0.98f) / unitsX
+        val pitch = (basePitch * config.scale).coerceAtMost(maxPitch)
 
         val blockW = pitch * unitsX
         val blockH = pitch * unitsY
         val originX = (width - blockW) / 2f
-        val originY = bandTop + (bandH - pitch * (unitsY + 3.2f)) / 2f
+        // Centre within the band, then shift by the user's vertical position bias.
+        val originY = bandTop + (bandH - pitch * (unitsY + 3.2f)) / 2f + config.verticalBias * height
 
         val radius = pitch * 0.30f
         labelPaint.textSize = pitch * 1.55f
